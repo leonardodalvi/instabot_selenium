@@ -18,7 +18,7 @@ class InstaBot:
     def __init__(self):
 
         # abre o navegador
-        self.driver = webdriver.Chrome(r"C:\Users\leona\OneDrive\Hub\dev\instabot_selenium\chromedriver.exe")
+        self.driver = webdriver.Chrome(r"chromedriver.exe")
 
         # maximiza a janela do navegador
         self.driver.maximize_window()
