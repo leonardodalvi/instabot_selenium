@@ -72,43 +72,65 @@ class InstaBot:
         self.driver.find_element_by_xpath("//a[contains(@href,'/following')]")\
             .click()
         
-        # declara uma variável para armazenar o resultado do método "_pegar_nomes" (que é uma lista com o nome de todas as pessoas seguidas por nosso perfil)
-        seguindo = self._pegar_nomes()
+        # declara uma variável para armazenar o resultado do método "pegar_nomes" (que é uma lista com o nome de todas as pessoas seguidas por nosso perfil)
+        seguindo = self.pegar_nomes()
         
         # encontra o link de pessoas que seguem nosso perfil e clica nele
         self.driver.find_element_by_xpath("//a[contains(@href,'/followers')]")\
             .click()
         
-        # declara uma variável para armazenar o resultado do método "_pegar_nomes" (que é uma lista com o nome de todas as pessoas que seguem nosso perfil)
-        seguidores = self._pegar_nomes()
+        # declara uma variável para armazenar o resultado do método "pegar_nomes" (que é uma lista com o nome de todas as pessoas que seguem nosso perfil)
+        seguidores = self.pegar_nomes()
         
         # declara uma variável para armazenar os usuários que nosso perfil segue, mas que não seguem nosso perfil
-        not_following_back = [user for user in seguindo if user not in seguidores]
+        nao_te_segue = [user for user in seguindo if user not in seguidores]
         
         # imprime na tela os usuários que nosso perfil segue, mas que não seguem nosso perfil
-        print("Galera que não te segue: ", not_following_back)
+        print("Galera que não te segue: ", nao_te_segue)
 
         # cria e abre um arquivo ".txt" com permissão de escrita
         with open(username + '.txt', 'w') as f:
             
             # inicia loop para incluir no arquivo ".txt" todos os perfis que nosso perfil segue, mas que não seguem nosso perfil
-            for nome in not_following_back:
+            for nome in nao_te_segue:
                 
-                # escreve o nome do perfil no arquivo ".txt" com o nome do usuário
+                # escreve o nome do perfil no arquivo ".txt" com o nome do nosso perfil
                 f.write("%s\n" % nome)
             
             # fecha o arquivo ".txt" ao finalizar o loop
             f.close()
         
         # retorna lista com nomes de usuário que nosso perfil segue, mas que não seguem nosso perfil
-        return not_following_back
+        return nao_te_segue
 
     # declara método para capturar os nomes de usuário
-    def _pegar_nomes(self):
+    def pegar_nomes(self):
         
         # faz uma pausa de dois segundos (para terminar de carregar a página)
         sleep(2)
         
+        # declara uma variável para armazenar XPath da div que contém o scroll
+        scroll_box = self.driver.find_element_by_xpath("/html/body/div[4]/div/div/div[2]")
+
+        # realiza a rolagem da div de seguidos ou de seguidores
+        self.rolagem_seguidos_seguidores()
+        
+        # declara uma variável para armazenar o resultado da busca pelas tags "a" que contém o nome dos perfis que nosso perfil segue, mas que não seguem nosso perfil
+        links = scroll_box.find_elements_by_tag_name("a")
+        
+        # declara uma variável para armazenar o resultado de um loop para ober a lista dos nomes dos perfis que nosso perfil segue, mas que não seguem nosso perfil
+        nomes = [name.text for name in links if name.text != ""]
+        
+        # encontra o botão para fechar a janela e clica nele
+        self.driver.find_element_by_xpath("/html/body/div[4]/div/div/div[1]/div/div[2]/button")\
+            .click()
+        
+        # retorna lista com nomes de usuário
+        return nomes
+
+    # declara método para rolar toda a div de seguidos ou seguidores (como forma de agilizar os processos de busca de usuários)
+    def rolagem_seguidos_seguidores(self):
+
         # declara uma variável para armazenar XPath da div que contém o scroll
         scroll_box = self.driver.find_element_by_xpath("/html/body/div[4]/div/div/div[2]")
         
@@ -129,32 +151,32 @@ class InstaBot:
                 arguments[0].scrollTo(0, arguments[0].scrollHeight);
                 return arguments[0].scrollHeight;
                 """, scroll_box)
-        
-        # declara uma variável para armazenar o resultado da busca pelas tags "a" que contém o nome dos perfis que nosso perfil segue, mas que não seguem nosso perfil
-        links = scroll_box.find_elements_by_tag_name("a")
-        
-        # declara uma variável para armazenar o resultado de um loop para ober a lista dos nomes dos perfis que nosso perfil segue, mas que não seguem nosso perfil
-        nomes = [name.text for name in links if name.text != ""]
-        
-        # encontra o botão para fechar a janela e clica nele
-        self.driver.find_element_by_xpath("/html/body/div[4]/div/div/div[1]/div/div[2]/button")\
-            .click()
-        
-        # retorna lista com nomes de usuário
-        return nomes
 
     # declara método para deixar de seguir os perfis que nosso perfil segue, mas que não seguem nosso perfil
     def unfollow_unfollowers(self):
 
-        # declara variável que armazena lista de perfis que nosso perfil segue, mas que não seguem nosso perfil, utilizando o resultado do método "buscar_unfollowers"
-        unfollow_essa_galera = self.buscar_unfollowers()
-        
+        # abre um arquivo ".txt" com permissão de atualização
+        with open(username + '.txt', 'r') as f:
+            
+            # armazena o conteúdo do arquivo ".txt" em uma lista, usando rsstrip() para retirar a quebra (\n) do final dos elementos do arquivo
+            unfollow_essa_galera = [line.rstrip() for line in f]
+
+            # fecha o arquivo ".txt" ao finalizar o loop
+            f.close()
+  
         # impõe condição para continuar a execução (ter algum nome de usuário na lista)
         if len(unfollow_essa_galera) > 0:
-            
+
             # imprime mensagem na tela
             print("Iniciando unfollow...")
             
+            # encontra o link para o seu perfil e clica nele
+            self.driver.find_element_by_xpath("//a[contains(@href,'/{}/')]".format(username))\
+                .click()
+            
+            # faz uma pausa de dois segundos (para terminar de carregar a página)
+            sleep(2)
+
             # encontra o link de pessoas que nosso perfil está seguindo e clica nele
             self.driver.find_element_by_xpath("//a[contains(@href,'/following')]")\
                 .click()
@@ -162,6 +184,9 @@ class InstaBot:
             # faz uma pausa de dois segundos (para terminar de carregar a página)
             sleep(2)
             
+            # realiza a rolagem da div de seguidos
+            self.rolagem_seguidos_seguidores()
+
             # variável de controle para loop
             i = 0
 
@@ -175,7 +200,7 @@ class InstaBot:
                 self.driver.execute_script("arguments[0].scrollIntoView(true);", elemento)
                 
                 # imprime mensagem na tela
-                print("Encontrei o usuário")
+                print(i, "- Encontrei o usuário", user)
                 
                 # encontra o botão "Seguindo" e clica nele para dar unfollow
                 elemento.find_element_by_xpath("./following::button[contains(text(), 'Following')]")\
@@ -186,24 +211,45 @@ class InstaBot:
                     .click()
                 
                 # imprime mensagem na tela
-                print("Dei unfollow")
+                print(i, "- Dei unfollow em", user)
 
-                # faz uma pausa de dois a quatro segundos aleatoriamente para quebrar o padrão e deixar o ato de unfollow menos robótico
+                # exclui perfil da lista               
+                unfollow_essa_galera.remove(user)
+
+                # faz uma pausa de dois a quatro segundos aleatoriamente para quebrar o padrão e deixar o ato de unfollow um pouco menos robótico
                 sleep(random.randint(2, 4))
 
                 # incrementa variável de controle
                 i += 1
-
+                
                 # condição para finalizar o loop
                 if i == 90:
                     break
             
-        # encontra o botão para fechar a janela e clica nele
-        self.driver.find_element_by_xpath("/html/body/div[4]/div/div/div[1]/div/div[2]/button")\
-            .click()
+            # encontra o botão para fechar a janela e clica nele
+            self.driver.find_element_by_xpath("/html/body/div[4]/div/div/div[1]/div/div[2]/button")\
+                .click()
         
-        # imprime mensagem na tela
-        print("Chega de unfollow por hoje!")
+            # imprime mensagem na tela
+            print("Chega de unfollow por hoje!")
+
+            # abre um arquivo ".txt" com permissão de atualização
+            with open(username + '.txt', 'w+') as f:
+
+                # inicia loop para incluir no arquivo ".txt" todos os perfis que nosso perfil segue, mas que não seguem nosso perfil
+                for nome in unfollow_essa_galera:
+                    
+                    # escreve o nome do perfil no arquivo ".txt" com o nome do nosso perfil
+                    f.write("%s\n" % nome)
+
+                # fecha o arquivo ".txt" ao finalizar o loop
+                f.close()
+
+        # caso condição imposta não seja verdadeira
+        else:
+
+            # imprime mensagem na tela
+            print("Ninguém para dar unfollow!")
 
 # executa método para deixar de seguir os perfis que nosso perfil segue, mas que não seguem nosso perfil
 InstaBot().unfollow_unfollowers()
