@@ -88,16 +88,16 @@ class InstaBot:
         # imprime na tela os usuários que nosso perfil segue, mas que não seguem nosso perfil
         print("Galera que não te segue: ", not_following_back)
 
-        # cria e abre um arquivo "unfollow.txt" com permissão de escrita
-        with open('unfollow.txt', 'w') as f:
+        # cria e abre um arquivo ".txt" com permissão de escrita
+        with open(username + '.txt', 'w') as f:
             
-            # inicia loop para incluir no arquivo "unfollow.txt" todos os perfis que nosso perfil segue, mas que não seguem nosso perfil
+            # inicia loop para incluir no arquivo ".txt" todos os perfis que nosso perfil segue, mas que não seguem nosso perfil
             for nome in not_following_back:
                 
-                # escreve o nome do perfil no arquivo "unfollow.txt"
+                # escreve o nome do perfil no arquivo ".txt" com o nome do usuário
                 f.write("%s\n" % nome)
             
-            # fecha o arquivo "unfollow.txt" ao finalizar o loop
+            # fecha o arquivo ".txt" ao finalizar o loop
             f.close()
         
         # retorna lista com nomes de usuário que nosso perfil segue, mas que não seguem nosso perfil
