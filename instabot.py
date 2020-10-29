@@ -162,40 +162,41 @@ class InstaBot:
             # faz uma pausa de dois segundos (para terminar de carregar a página)
             sleep(2)
             
-            # variável de controle para loop "while"
+            # variável de controle para loop
             i = 0
 
-            # inicia loop para limitar quantidade de unfollows por execução (100x)
-            while i < 100: 
+            # inicia loop para dar unfollow nos perfis da lista limitado a 90 perfis
+            for user in unfollow_essa_galera:
+                
+                # encontra o nome do perfil da lista
+                elemento = self.driver.find_element_by_xpath("//a[contains(@href,'/{}/')]".format(user))
+                
+                # move o scroll até o nome do perfil da lista para que fique visível na tela
+                self.driver.execute_script("arguments[0].scrollIntoView(true);", elemento)
+                
+                # imprime mensagem na tela
+                print("Encontrei o usuário")
+                
+                # encontra o botão "Seguindo" e clica nele para dar unfollow
+                elemento.find_element_by_xpath("./following::button[contains(text(), 'Following')]")\
+                    .click()
+                
+                # encontra o botão "Deixar de seguir" e clica nele
+                self.driver.find_element_by_xpath("//button[contains(text(), 'Unfollow')]")\
+                    .click()
+                
+                # imprime mensagem na tela
+                print("Dei unfollow")
 
-                # inicia loop para dar unfollow nos perfis da lista
-                for user in unfollow_essa_galera:
-                    
-                    # encontra o nome do perfil da lista
-                    elemento = self.driver.find_element_by_xpath("//a[contains(@href,'/{}/')]".format(user))
-                    
-                    # move o scroll até o nome do perfil da lista para que fique visível na tela
-                    self.driver.execute_script("arguments[0].scrollIntoView(true);", elemento)
-                    
-                    # imprime mensagem na tela
-                    print("Encontrei o usuário")
-                    
-                    # encontra o botão "Seguindo" e clica nele para dar unfollow
-                    elemento.find_element_by_xpath("./following::button[contains(text(), 'Following')]")\
-                        .click()
-                    
-                    # encontra o botão "Deixar de seguir" e clica nele
-                    self.driver.find_element_by_xpath("//button[contains(text(), 'Unfollow')]")\
-                        .click()
-                    
-                    # imprime mensagem na tela
-                    print("Dei unfollow")
+                # faz uma pausa de dois a quatro segundos aleatoriamente para quebrar o padrão e deixar o ato de unfollow menos robótico
+                sleep(random.randint(2, 4))
 
-                    # faz uma pausa de dois a quatro segundos aleatoriamente para quebrar o padrão e deixar o ato de unfollow menos robótico
-                    sleep(random.randint(2, 4))
+                # incrementa variável de controle
+                i += 1
 
-                    # incrementa variável de controle
-                    i += 1
+                # condição para finalizar o loop
+                if i == 90:
+                    break
             
         # encontra o botão para fechar a janela e clica nele
         self.driver.find_element_by_xpath("/html/body/div[4]/div/div/div[1]/div/div[2]/button")\
