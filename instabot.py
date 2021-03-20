@@ -22,7 +22,7 @@ class InstaBot:
         options.add_argument("--lang=pt")
         
         # abre o navegador com as definições de idioma
-        self.driver = webdriver.Chrome(r"chromedriver.exe", chrome_options=options)
+        self.driver = webdriver.Chrome(r"F:\\instabot_selenium\\chromedriver.exe", chrome_options=options)
 
         # maximiza a janela do navegador
         self.driver.maximize_window()
@@ -52,8 +52,8 @@ class InstaBot:
         self.driver.find_element_by_xpath("//button[@type='submit']")\
             .click()
         
-        # faz uma pausa de quatro segundos (para terminar de carregar a página)
-        sleep(4)
+        # faz uma pausa de dez segundos (para terminar de carregar a página)
+        sleep(10)
 
     # declara método para capturar lista de seguidos
     def capturar_seguidos(self):
@@ -61,29 +61,9 @@ class InstaBot:
         # acessa o endereço do perfil
         self.driver.get('https://www.instagram.com/'+self.usuario)
         
-        ### esta é uma outra maneira de chegar ao mesmo resultado navegando pela página
-        #
-        ### encontra o botão "Agora não" para salvar informações de login e clica nele
-        # self.driver.find_element_by_xpath("//button[contains(text(), 'Agora Não')]")\
-        #     .click()
-        #
-        ### faz uma pausa de dois segundos (para terminar de carregar a página)
-        # sleep(2)
-        #
-        ### encontra o botão "Agora não" para ativar notificações e clica nele
-        # self.driver.find_element_by_xpath("//button[contains(text(), 'Agora Não')]")\
-        #     .click()
-        #
-        ### faz uma pausa de dois segundos (para terminar de carregar a página)
-        # sleep(2)
-        #
-        ### encontra o link para o seu perfil e clica nele
-        # self.driver.find_element_by_xpath("//a[contains(@href,'/{}/')]".format(self.usuario))\
-        #     .click()
-
         # faz uma pausa de dois segundos (para terminar de carregar a página)
         sleep(2)
-        
+
         # encontra o link de pessoas que nosso perfil está seguindo e clica nele
         self.driver.find_element_by_xpath("//a[contains(@href,'/following')]")\
             .click()
@@ -238,7 +218,7 @@ class InstaBot:
                 # variável de controle para loop "for"
                 i = 0
 
-                # inicia loop para dar unfollow nos perfis da lista limitado a 8 perfis
+                # inicia loop para dar unfollow nos perfis da lista limitado a 7 perfis
                 for user in unfollow_essa_galera:
                     
                     # faz uma pausa de dois segundos (para terminar de carregar a página)
